@@ -8,6 +8,6 @@ driver = GraphDatabase.driver(
 )
 
 def close_driver():
-    \"\"\"Close the Neo4j driver (for shutdown cleanup).\"\"\"
+    """Close the Neo4j driver (for shutdown cleanup)."""
     if driver is not None:
         driver.close()
