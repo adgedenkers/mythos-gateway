@@ -7,10 +7,10 @@ import subprocess
 router = APIRouter()
 
 @router.get("/debug/journal", response_class=PlainTextResponse, tags=["debug"])
-def get_journal_logs():
+def get_mythos_gateway_logs():
     try:
         result = subprocess.run(
-            ["journalctl", "-n", "50", "--no-pager", "--output=short"],
+            ["journalctl", "-u", "mythos_gateway", "-n", "50", "--no-pager", "--output=short"],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=True,
