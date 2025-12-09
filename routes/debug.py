@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from starlette.responses import PlainTextResponse
 from core.config import get_settings
 import subprocess
+import socket
+import psutil
 import os
 
 router = APIRouter(prefix="/debug", tags=["debug"])
@@ -64,3 +66,14 @@ def ping_neo4j(settings=Depends(get_settings)):
             return {"neo4j_connection": "successful", "result": result["ok"]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Neo4j connection failed: {str(e)}")
+
+@router.get("/status")
+def system_status():
+    return {
+        "hostname": socket.gethostname(),
+        "uptime_seconds": int(psutil.boot_time()),  # Epoch — convert to readable if needed
+        "load_avg": os.getloadavg(),
+        "disk_usage": psutil.disk_usage("/")._asdict(),
+        "memory": psutil.virtual_memory()._asdict(),
+        "cpu_count": psutil.cpu_count()
+    }
