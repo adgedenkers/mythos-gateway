@@ -9,6 +9,7 @@ from api.spiral.routes import router as spiral_router
 from core.config import settings
 
 from routes import config
+from routes import debug
 from routes import neo4j_test
 
 # Initialize FastAPI with Mythos branding
@@ -86,6 +87,7 @@ async def legacy_spiral_date(cycle: int, revolution: int, day: int):
 
 # INCLUDE ROUTERS
 app.include_router(config.router)
+app.include_router(debug_router)
 app.include_router(neo4j_test.router)
 
 if __name__ == "__main__":
