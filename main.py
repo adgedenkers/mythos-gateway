@@ -8,11 +8,12 @@ from api.spiral.routes import router as spiral_router
 
 from core.config import settings
 
+from routes import config
 from routes import neo4j_test
 
 # Initialize FastAPI with Mythos branding
 app = FastAPI(
-    title="Ashari API",
+    title="Myyhos Gateway API",
     version="0.1.0",
     docs_url="/mythos-docs",
     redoc_url=None,
@@ -66,15 +67,15 @@ async def health_check():
         "timestamp": datetime.now().isoformat()
     }
 
-# Config test endpoint
-@app.get("/config-test", tags=["system"])
-async def config_test():
-    """Verify configuration loading"""
-    return {
-        "scroll_library_path": settings.SCROLL_LIBRARY_PATH,
-        "github_repo": settings.GITHUB_REPO,
-        "valid_keys_configured": len([k for k in settings.valid_api_keys if k]) > 0
-    }
+# # Config test endpoint
+# @app.get("/config-test", tags=["system"])
+# async def config_test():
+#     """Verify configuration loading"""
+#     return {
+#         "scroll_library_path": settings.SCROLL_LIBRARY_PATH,
+#         "github_repo": settings.GITHUB_REPO,
+#         "valid_keys_configured": len([k for k in settings.valid_api_keys if k]) > 0
+#     }
 
 # Preserved endpoints (migrate these gradually)
 @app.get("/spiral-date")
@@ -84,6 +85,7 @@ async def legacy_spiral_date(cycle: int, revolution: int, day: int):
 
 
 # INCLUDE ROUTERS
+app.include_router(config.router)
 app.include_router(neo4j_test.router)
 
 if __name__ == "__main__":
