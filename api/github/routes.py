@@ -1,12 +1,16 @@
 from fastapi import APIRouter, HTTPException
-from api.github.service import GitHubService
+from core.models import ScrollData, PatchScrollData
+from .service import GitHubService
 
-router = APIRouter(prefix="/github", tags=["github"])
-github_service = GitHubService()
 
-@router.post("/create-scroll")
-async def create_scroll(scroll_data: dict):
-    try:
-        return await github_service.create_scroll(scroll_data)
-    except Exception as e:
-        raise HTTPException(500, detail=str(e))
+router = APIRouter(prefix="/github", tags=["GitHub Local Scrolls"])
+
+@router.post("/create-scroll-local")
+async def create_scroll_local(scroll_data: ScrollData):
+    service = GitHubService()
+    return await service.create_scroll(scroll_data)
+
+@router.post("/patch-scroll-local")
+async def patch_scroll_local(patch_data: PatchScrollData):
+    service = GitHubService()
+    return await service.patch_scroll(patch_data)

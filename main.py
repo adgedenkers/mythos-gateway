@@ -81,10 +81,6 @@ async def api_key_auth(request: Request, call_next):
     
     return await call_next(request)
 
-# Include routers
-app.include_router(github_router)
-app.include_router(spiral_router)
-
 # System health check (kept for backwards compatibility)
 @app.get("/")
 async def health_check():
@@ -116,6 +112,10 @@ app.include_router(config.router)
 app.include_router(debug.router)
 app.include_router(github.router)
 app.include_router(neo4j_test.router)
+
+# INCLUDE SECONDARY ROUTERS
+app.include_router(github_router)
+app.include_router(spiral_router)
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

@@ -1,12 +1,14 @@
 # routes/debug.py
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from starlette.responses import PlainTextResponse
 from core.config import get_settings
 import subprocess
 import socket
 import psutil
 import os
+
+from fastapi.routing import APIRoute
 
 router = APIRouter(prefix="/debug", tags=["debug"])
 
@@ -66,6 +68,14 @@ def ping_neo4j(settings=Depends(get_settings)):
             return {"neo4j_connection": "successful", "result": result["ok"]}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Neo4j connection failed: {str(e)}")
+
+@router.get("/routes", include_in_schema=False)
+def list_all_routes(request: Request):
+    app = request.app
+    return [
+        {"path": route.path, "methods": list(route.methods)}
+        for route in app.routes if isinstance(route, APIRoute)
+    ]
 
 @router.get("/status")
 def system_status():
