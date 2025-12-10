@@ -3,8 +3,7 @@
 from git import Repo
 from pathlib import Path
 from core.config import settings
-from core.models import ScrollData
-# from core.scroll_index import index_single_scroll  # if Redis is already wired in
+from core.models import ScrollData, PatchScrollData
 import os
 import re
 
