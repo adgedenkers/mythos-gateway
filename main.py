@@ -6,6 +6,8 @@ from core import config
 from api.github.routes import router as github_router
 from api.spiral.routes import router as spiral_router
 
+from redis import Redis
+
 from core.config import settings
 
 from routes import config
@@ -22,15 +24,38 @@ app = FastAPI(
     openapi_url="/openapi.json"
 )
 
+# Setup REDIS
+redis_client = Redis(
+    host="localhost",
+    port=6379,
+    decode_responses=True
+)
 
-# CORS Middleware
+# Secure CORS Middleware for HuggingFace MCP + Local Dev
+ALLOWED_ORIGINS = [
+    "https://huggingface.co",
+    "https://chat.huggingface.co",
+    "http://localhost:3000",
+    "http://localhost:8000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["X-API-Key", "Content-Type", "Authorization"],
 )
+
+
+# WIDE OPEN CORS
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 @app.middleware("http")
 async def api_key_auth(request: Request, call_next):

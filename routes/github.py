@@ -1,22 +1,29 @@
-# routes/github.py
-
 from fastapi import APIRouter, Depends, HTTPException
 from core.config import get_settings
-from github import Github, GithubException
+from github import Github, Auth, GithubException
 import base64
 
 router = APIRouter(prefix="/github", tags=["github"])
 
-def get_github_client(settings=Depends(get_settings)):
+# --- CLEAN, EXPLICIT VERSION ---   
+def get_github_client(settings):
     token = settings.GITHUB_TOKEN
     if not token:
         raise HTTPException(status_code=500, detail="GitHub token not configured")
-    return Github(token)
+    auth = Auth.Token(token)
+    return Github(auth=auth)
+
+
 
 @router.get("/list-repo")
-def list_repo_files(repo_name: str = None, path: str = "", settings=Depends(get_settings)):
-    repo_name = repo_name or settings.GITHUB_REPO
+def list_repo_files(
+    repo_name: str = None,
+    path: str = "",
+    settings = Depends(get_settings)
+):
     g = get_github_client(settings)
+    repo_name = repo_name or settings.GITHUB_REPO
+
     try:
         repo = g.get_repo(f"{settings.GITHUB_USERNAME}/{repo_name}")
         contents = repo.get_contents(path)
@@ -24,9 +31,15 @@ def list_repo_files(repo_name: str = None, path: str = "", settings=Depends(get_
     except GithubException as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.get("/file-content")
-def get_file_content(repo_name: str, file_path: str, settings=Depends(get_settings)):
+def get_file_content(
+    repo_name: str,
+    file_path: str,
+    settings = Depends(get_settings)
+):
     g = get_github_client(settings)
+
     try:
         repo = g.get_repo(f"{settings.GITHUB_USERNAME}/{repo_name}")
         file_content = repo.get_contents(file_path)
@@ -35,9 +48,17 @@ def get_file_content(repo_name: str, file_path: str, settings=Depends(get_settin
     except GithubException as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @router.post("/create-scroll")
-def create_scroll(repo_name: str, scroll_name: str, content: str, commit_message: str, settings=Depends(get_settings)):
+def create_scroll(
+    repo_name: str,
+    scroll_name: str,
+    content: str,
+    commit_message: str,
+    settings = Depends(get_settings)
+):
     g = get_github_client(settings)
+
     try:
         repo = g.get_repo(f"{settings.GITHUB_USERNAME}/{repo_name}")
         path = f"scrolls/{scroll_name}"
