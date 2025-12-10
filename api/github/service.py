@@ -15,7 +15,7 @@ class GitHubService:
 
 
     async def patch_scroll(self, patch_data: PatchScrollData):
-        scroll_path = os.path.join(self.repo_path, patch_data.path)
+        scroll_path = os.path.join(self.root_path, patch_data.path)
         
         if not os.path.isfile(scroll_path):
             raise HTTPException(status_code=404, detail=f"Scroll not found: {patch_data.path}")
