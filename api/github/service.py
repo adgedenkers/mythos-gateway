@@ -1,16 +1,49 @@
-import os
+# api/github/service.py
+
 from git import Repo
 from pathlib import Path
-import uuid
-from datetime import datetime
-import yaml
 from core.config import settings
+from core.models import ScrollData
+# from core.scroll_index import index_single_scroll  # if Redis is already wired in
+import os
 
 class GitHubService:
     def __init__(self):
         self.repo = Repo(settings.SCROLL_LIBRARY_PATH)
         self.root_path = Path(settings.SCROLL_LIBRARY_PATH)
-        
-    async def create_scroll(self, scroll_data: dict) -> dict:
-        # Implement scroll creation logic here
-        pass
+
+    async def create_scroll(self, scroll_data: ScrollData) -> dict:
+        rel_path = scroll_data.path
+        content = scroll_data.content
+        commit_message = scroll_data.commit_message or f"Create {rel_path}"
+
+        full_path = self.root_path / rel_path
+        full_path.parent.mkdir(parents=True, exist_ok=True)
+        full_path.write_text(content, encoding="utf-8")
+
+        # Stage and commit
+        self.repo.index.add([str(full_path.relative_to(self.root_path))])
+        self.repo.index.commit(commit_message)
+
+        # Attempt to push to origin
+        try:
+            origin = self.repo.remote(name="origin")
+            origin.push()
+            pushed = True
+        except Exception as e:
+            pushed = False
+            print(f"[Mythos] Git push failed: {e}")
+
+        # (Optional) Update Redis if you’ve already implemented it
+        try:
+            from core.scroll_index import index_single_scroll
+            index_single_scroll(full_path)
+        except Exception as e:
+            print(f"[Mythos] Redis index update failed: {e}")
+
+        return {
+            "status": "success",
+            "path": rel_path,
+            "commit_message": commit_message,
+            "pushed": pushed
+        }
