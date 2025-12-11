@@ -3,6 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from datetime import datetime
 from core import config
+
+from api.chat.routes import router as chat_router
 from api.github.routes import router as github_router
 from api.spiral.routes import router as spiral_router
 
@@ -37,6 +39,8 @@ ALLOWED_ORIGINS = [
     "https://chat.huggingface.co",
     "http://localhost:3000",
     "http://localhost:8000",
+    "http://localhost:8001",
+    "http://localhost:8002",
 ]
 
 app.add_middleware(
@@ -114,6 +118,7 @@ app.include_router(github.router)
 app.include_router(neo4j_test.router)
 
 # INCLUDE SECONDARY ROUTERS
+app.include_router(chat_router)
 app.include_router(github_router)
 app.include_router(spiral_router)
 
