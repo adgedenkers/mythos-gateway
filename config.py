@@ -3,7 +3,7 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv("/opt/ashari-bot/.env")
+load_dotenv("/opt/mythos-gateway/.env")
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
